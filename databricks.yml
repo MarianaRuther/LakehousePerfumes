@@ -1,5 +1,13 @@
-# This is a Declarative Automation Bundle definition for rotaperfume_meu_ensaio.
-# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+# Rota do Perfume — ensaio pessoal da Noite 2 (engenharia de dados) da Imersão
+# Jornada de Dados. O bundle nasce vazio neste prompt 1 e ganha uma camada por
+# prompt até o fim da noite:
+#
+#   raw → bronze → silver → gold → dashboard → Genie
+#
+# Seis prompts, seis deploys. Deploy não é etapa de fim de projeto: é o que
+# acontece toda vez que se termina algo.
+#
+# Databricks Free Edition: nada aqui pode exigir cluster clássico, só serverless.
 bundle:
   name: rotaperfume_meu_ensaio
   uuid: c7ef0eee-fd51-4d41-8973-35a5d04e8c9e
@@ -7,35 +15,40 @@ bundle:
 include:
   - resources/*.yml
 
-# Variable declarations. These variables are assigned in the dev/prod targets below.
+# catalog e warehouse_id em variável para o mesmo YAML funcionar em dev e prod
+# sem editar uma linha sequer entre os dois deploys.
 variables:
   catalog:
-    description: The catalog to use
-  schema:
-    description: The schema to use
+    description: Catálogo Unity Catalog onde vivem os schemas bronze, silver e gold
+    default: lakehouse_rotaperfume
+  warehouse_id:
+    description: SQL Warehouse serverless que roda as tarefas SQL, o dashboard e o Genie
+    default: bf043fb70747eb5f
 
 targets:
   dev:
-    # The default target uses 'mode: development' to create a development copy.
-    # - Deployed resources get prefixed with '[dev my_user_name]'
-    # - Any job schedules and triggers are paused by default.
-    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
-    mode: development
     default: true
     workspace:
       host: https://dbc-5cf694fb-f9b7.cloud.databricks.com
-    variables:
-      catalog: lakehouse_rotaperfume
-      schema: dev
+
+    # ARMADILHA: de propósito NÃO usamos `mode: development` neste target.
+    # Esse modo prefixa todo recurso deployado com "[dev seu_usuario]" —
+    # inclusive os SCHEMAS do Unity Catalog que resources/catalogo.yml cria.
+    # bronze/silver/gold virariam algo como "dev_marianaruther_bronze", e todo
+    # o SQL da noite (que referencia <catalogo>.bronze, <catalogo>.silver, ...)
+    # quebraria. Isso só se descobre errando, então fica registrado aqui.
+    #
+    # O que o mode: development também fazia — pausar o agendamento do job —
+    # a gente faz na mão com este preset:
+    presets:
+      trigger_pause_status: PAUSED
+
   prod:
     mode: production
     workspace:
       host: https://dbc-5cf694fb-f9b7.cloud.databricks.com
-      # We explicitly deploy to /Workspace/Users/marianaruther@gmail.com to make sure we only have a single copy.
+      # Caminho fixo para garantir uma única cópia deployada em prod.
       root_path: /Workspace/Users/marianaruther@gmail.com/.bundle/${bundle.name}/${bundle.target}
-    variables:
-      catalog: lakehouse_rotaperfume
-      schema: prod
     permissions:
       - user_name: marianaruther@gmail.com
         level: CAN_MANAGE

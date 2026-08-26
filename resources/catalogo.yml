@@ -1,0 +1,38 @@
+# O catálogo como código — schemas e volume, que É possível criar pelo bundle.
+#
+# O CATÁLOGO em si não está aqui: no Databricks Free Edition o Default Storage
+# vem ligado, e nessa configuração a API do Unity Catalog recusa criar
+# catálogo porque exige um MANAGED LOCATION que a conta gratuita não oferece:
+#
+#   Error: Metastore storage root URL does not exist.
+#          Default Storage is enabled in your account. (400 INVALID_STATE)
+#
+# O SQL `CREATE CATALOG` funciona normalmente, então ele mora em
+# scripts/criar-catalogo.sh e roda uma única vez, antes do primeiro
+# `bundle deploy`. Tudo que vem depois do catálogo — schemas, volume, e nos
+# próximos prompts o job, o dashboard e o Genie — é bundle.
+
+resources:
+  schemas:
+    bronze:
+      catalog_name: ${var.catalog}
+      name: bronze
+      comment: Camada de ingestão crua — o CSV como chegou da origem, sujeira inclusa, sem nenhuma limpeza.
+
+    silver:
+      catalog_name: ${var.catalog}
+      name: silver
+      comment: Camada de limpeza — dado deduplicado, tipado e com as regras de negócio aplicadas.
+
+    gold:
+      catalog_name: ${var.catalog}
+      name: gold
+      comment: Camada de consumo — dimensões, fatos e marts prontos para dashboard, Genie e modelos.
+
+  volumes:
+    raw:
+      catalog_name: ${var.catalog}
+      schema_name: bronze
+      name: raw
+      volume_type: MANAGED
+      comment: Pouso dos CSVs de ERP e CRM, arquivo por arquivo, antes de virarem tabela na bronze.
