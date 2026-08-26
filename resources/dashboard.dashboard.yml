@@ -1,0 +1,21 @@
+# O dashboard comercial — como código, igual a todo o resto do bundle.
+#
+# A gold (prompt 4) já tem dimensões, fato_vendas e os 9 testes de qualidade.
+# Este dashboard lê fato_vendas com nome de tabela puro (`FROM fato_vendas`):
+# dataset_catalog/dataset_schema abaixo é que resolvem catálogo e schema em
+# tempo de deploy — por isso o mesmo JSON funciona em dev e prod sem editar
+# uma linha.
+#
+# Poucos datasets de propósito: ds_fato_vendas atende os quatro KPIs, a linha
+# de receita por mês, as três barras e os três filtros — é o que garante que
+# clicar numa marca filtre a tela inteira. Só o Top 20 clientes tem dataset
+# próprio, porque TOP-N com LIMIT exige pré-agregação na consulta.
+
+resources:
+  dashboards:
+    dashboard_comercial:
+      display_name: 'Rota do Perfume — Comercial'
+      file_path: dashboard-comercial.lvdash.json
+      warehouse_id: ${var.warehouse_id}
+      dataset_catalog: ${var.catalog}
+      dataset_schema: gold
