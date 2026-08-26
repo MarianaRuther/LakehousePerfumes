@@ -30,9 +30,12 @@ WITH normalizado AS (
 deduplicado AS (
   SELECT
     *,
-    -- 40 CNPJs têm dois cliente_id: fica o cadastro MAIS ANTIGO.
+    -- 40 CNPJs têm dois cliente_id: fica o cadastro MAIS ANTIGO. cliente_id
+    -- é STRING (bronze não tipa nada) — desempate por CAST(...AS INT), nunca
+    -- por ordem lexicográfica: "3007" < "42" como texto, o que manteria o
+    -- cliente_id ERRADO e deixaria pedidos do id descartado órfãos na gold.
     row_number() OVER (
-      PARTITION BY cnpj ORDER BY data_cadastro ASC, cliente_id ASC
+      PARTITION BY cnpj ORDER BY data_cadastro ASC, CAST(cliente_id AS INT) ASC
     ) AS ordem_cadastro,
     -- ids descartados do mesmo CNPJ, guardados no id que sobrevive — pedidos
     -- antigos apontam para eles, e sem isso a referência se perde.
