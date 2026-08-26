@@ -6,7 +6,7 @@
 #   prompt 1  raw_conferencia
 #   prompt 2  + bronze_ingestao                                      (este)
 #   prompt 3  + silver_clientes, silver_pedidos,
-#               silver_itens_e_produtos, silver_crm_e_financeiro     (paralelo)
+#               silver_itens_e_produtos, silver_crm_e_financeiro     (este)
 #   prompt 4  + gold_dimensoes → gold_fato_vendas → gold_marts
 #             + testes_de_qualidade
 #   prompt 6  + metricas_de_negocio → auditoria_de_metadado
@@ -43,7 +43,7 @@ resources:
             base_parameters:
               catalog: "{{job.parameters.catalog}}"
 
-        # A tarefa deste prompt: os CSVs viram Delta, sujeira preservada.
+        # A tarefa do prompt anterior: os CSVs viram Delta, sujeira preservada.
         # depends_on é o conteúdo — se a conferência falhar, a bronze não roda.
         - task_key: bronze_ingestao
           depends_on:
@@ -52,3 +52,42 @@ resources:
             notebook_path: ../src/bronze/ingestao.py
             base_parameters:
               catalog: "{{job.parameters.catalog}}"
+
+        # As quatro tarefas deste prompt: limpar, tipar e declarar o contrato.
+        # Todas dependem só de bronze_ingestao — nenhuma depende da outra —
+        # por isso rodam em paralelo, e é assim que o DAG desenha melhor.
+        - task_key: silver_clientes
+          depends_on:
+            - task_key: bronze_ingestao
+          sql_task:
+            file:
+              path: ../src/silver/01-clientes.sql
+              source: WORKSPACE
+            warehouse_id: ${var.warehouse_id}
+
+        - task_key: silver_pedidos
+          depends_on:
+            - task_key: bronze_ingestao
+          sql_task:
+            file:
+              path: ../src/silver/02-pedidos.sql
+              source: WORKSPACE
+            warehouse_id: ${var.warehouse_id}
+
+        - task_key: silver_itens_e_produtos
+          depends_on:
+            - task_key: bronze_ingestao
+          sql_task:
+            file:
+              path: ../src/silver/03-itens-e-produtos.sql
+              source: WORKSPACE
+            warehouse_id: ${var.warehouse_id}
+
+        - task_key: silver_crm_e_financeiro
+          depends_on:
+            - task_key: bronze_ingestao
+          sql_task:
+            file:
+              path: ../src/silver/04-crm-e-financeiro.sql
+              source: WORKSPACE
+            warehouse_id: ${var.warehouse_id}
