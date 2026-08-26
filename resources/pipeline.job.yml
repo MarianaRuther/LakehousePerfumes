@@ -4,12 +4,12 @@
 # sempre na mesma ordem em que o dado é lido — nunca ao contrário:
 #
 #   prompt 1  raw_conferencia
-#   prompt 2  + bronze_ingestao                                      (este)
+#   prompt 2  + bronze_ingestao
 #   prompt 3  + silver_clientes, silver_pedidos,
-#               silver_itens_e_produtos, silver_crm_e_financeiro     (este)
+#               silver_itens_e_produtos, silver_crm_e_financeiro
 #   prompt 4  + gold_dimensoes → gold_fato_vendas → gold_marts
 #             + testes_de_qualidade
-#   prompt 6  + metricas_de_negocio → auditoria_de_metadado
+#   prompt 6  + metricas_de_negocio → auditoria_de_metadado             (este)
 #
 # Desenho final do DAG:
 #
@@ -128,14 +128,38 @@ resources:
               source: WORKSPACE
             warehouse_id: ${var.warehouse_id}
 
-        # Por último e obrigatório: os 9 testes de qualidade. Cada um levanta
-        # raise_error() se falhar, o que derruba esta tarefa e o job inteiro —
-        # melhor o dashboard ficar com o dado de ontem do que com o errado de hoje.
+        # Os 9 testes de qualidade. Cada um levanta raise_error() se falhar, o
+        # que derruba esta tarefa e o job inteiro — melhor o dashboard ficar
+        # com o dado de ontem do que com o errado de hoje.
         - task_key: testes_de_qualidade
           depends_on:
             - task_key: gold_marts
           sql_task:
             file:
               path: ../src/gold/08-testes.sql
+              source: WORKSPACE
+            warehouse_id: ${var.warehouse_id}
+
+        # As views com nome de negócio, para o Genie encontrar a resposta sem
+        # adivinhar JOIN. Roda em paralelo com testes_de_qualidade — as duas
+        # dependem só de gold_marts, nenhuma depende da outra.
+        - task_key: metricas_de_negocio
+          depends_on:
+            - task_key: gold_marts
+          sql_task:
+            file:
+              path: ../src/gold/09-metricas-negocio.sql
+              source: WORKSPACE
+            warehouse_id: ${var.warehouse_id}
+
+        # A auditoria QUEBRA o job se alguma tabela ou coluna da gold estiver
+        # sem COMMENT: metadado faltando é bug, não pendência de documentação
+        # — é o texto que o Genie lê para decidir onde procurar.
+        - task_key: auditoria_de_metadado
+          depends_on:
+            - task_key: metricas_de_negocio
+          sql_task:
+            file:
+              path: ../src/gold/10-auditoria-metadado.sql
               source: WORKSPACE
             warehouse_id: ${var.warehouse_id}

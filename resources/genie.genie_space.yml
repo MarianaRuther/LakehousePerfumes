@@ -1,0 +1,25 @@
+# O Genie space como código, igual a todo o resto do bundle.
+#
+# A gold (prompts 4 e 6) tem COMMENT em toda tabela e coluna, views com nome
+# de negócio e as instruções de sazonalidade escritas em docs/genie-instrucoes.md
+# — comercial.geniespace.json é a versão serializada desse texto.
+#
+# É por isso que ele mora no Git: a regra "o pico é o mês ANTERIOR à data
+# comemorativa" passa a ter histórico, revisão e rollback, igual a qualquer
+# outro código — não fica presa só na configuração do workspace.
+#
+# A chave do recurso (genie_comercial) é diferente da chave do dashboard
+# (dashboard_comercial): o bundle recusa duas chaves iguais mesmo em tipos
+# de recurso diferentes.
+
+resources:
+  genie_spaces:
+    genie_comercial:
+      title: Rota do Perfume — Comercial
+      description: >-
+        Perguntas de negócio sobre a gold da Rota do Perfume, em português.
+        Sabe que o pico da distribuidora é o mês ANTERIOR à data comemorativa
+        (abril, junho, outubro) e que dezembro/janeiro são vale esperado, não
+        queda de desempenho.
+      file_path: comercial.geniespace.json
+      warehouse_id: ${var.warehouse_id}
