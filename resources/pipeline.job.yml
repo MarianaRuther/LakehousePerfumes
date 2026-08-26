@@ -163,3 +163,15 @@ resources:
               path: ../src/gold/10-auditoria-metadado.sql
               source: WORKSPACE
             warehouse_id: ${var.warehouse_id}
+
+        # A primeira tarefa de ML: vinte features por cliente, de gold.fato_vendas,
+        # silver.oportunidades e silver.visitas — nunca de gold.dim_cliente, que
+        # vaza o futuro. Depende de testes_de_qualidade, não de gold_marts: se a
+        # gold estiver errada, não faz sentido treinar em cima dela.
+        - task_key: ml_features
+          depends_on:
+            - task_key: testes_de_qualidade
+          notebook_task:
+            notebook_path: ../src/ml/11-features.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
