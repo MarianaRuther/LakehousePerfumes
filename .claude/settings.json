@@ -1,0 +1,29 @@
+{
+  "enabledPlugins": {
+    "databricks@claude-plugins-official": true
+  },
+  "permissions": {
+    "deny": [
+      "Bash(databricks bundle destroy*)",
+      "Bash(databricks bundle deploy --target prod*)",
+      "Bash(databricks bundle deploy --target=prod*)",
+      "Bash(rm -rf*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/block-unsafe-sql.py",
+            "statusMessage": "Verificando guard rails de SQL..."
+          }
+        ]
+      }
+    ]
+  }
+}
