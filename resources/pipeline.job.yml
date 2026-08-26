@@ -175,3 +175,14 @@ resources:
             notebook_path: ../src/ml/11-features.py
             base_parameters:
               catalog: "{{job.parameters.catalog}}"
+
+        # O modelo: baseline, treino, as duas métricas (auc e lift_top200),
+        # registro no Unity Catalog com alias @prod e o score dos clientes.
+        # Depende só de ml_features — as duas tabelas que ele lê nascem ali.
+        - task_key: ml_modelo
+          depends_on:
+            - task_key: ml_features
+          notebook_task:
+            notebook_path: ../src/ml/12-modelo.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
