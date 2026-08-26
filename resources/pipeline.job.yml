@@ -3,8 +3,8 @@
 # Ele nasce aqui com UMA tarefa e ganha as demais nos próximos cinco prompts,
 # sempre na mesma ordem em que o dado é lido — nunca ao contrário:
 #
-#   prompt 1  raw_conferencia                                        (este)
-#   prompt 2  + bronze_ingestao
+#   prompt 1  raw_conferencia
+#   prompt 2  + bronze_ingestao                                      (este)
 #   prompt 3  + silver_clientes, silver_pedidos,
 #               silver_itens_e_produtos, silver_crm_e_financeiro     (paralelo)
 #   prompt 4  + gold_dimensoes → gold_fato_vendas → gold_marts
@@ -36,9 +36,19 @@ resources:
           default: ${var.catalog}
 
       tasks:
-        # A única tarefa deste prompt: os dez arquivos chegaram no Volume?
+        # A única tarefa do prompt 1: os dez arquivos chegaram no Volume?
         - task_key: raw_conferencia
           notebook_task:
             notebook_path: ../src/raw/conferencia.py
+            base_parameters:
+              catalog: "{{job.parameters.catalog}}"
+
+        # A tarefa deste prompt: os CSVs viram Delta, sujeira preservada.
+        # depends_on é o conteúdo — se a conferência falhar, a bronze não roda.
+        - task_key: bronze_ingestao
+          depends_on:
+            - task_key: raw_conferencia
+          notebook_task:
+            notebook_path: ../src/bronze/ingestao.py
             base_parameters:
               catalog: "{{job.parameters.catalog}}"
