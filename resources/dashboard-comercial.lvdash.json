@@ -45,6 +45,15 @@
         "ORDER BY receita DESC \n",
         "LIMIT 20"
       ]
+    },
+    {
+      "name": "ds_fila_semanal",
+      "displayName": "Fila semanal de ligação",
+      "queryLines": [
+        "SELECT vendedor, ordem, cliente_id, razao_social, cidade, uf, score, faixa, ticket_medio, motivo, sugestao \n",
+        "FROM fila_semanal \n",
+        "ORDER BY vendedor, ordem"
+      ]
     }
   ],
   "pages": [
@@ -445,6 +454,110 @@
             }
           },
           "position": {"x": 0, "y": 26, "width": 12, "height": 8}
+        }
+      ]
+    },
+    {
+      "name": "fila_semanal",
+      "displayName": "Fila da semana",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "titulo-fila",
+            "multilineTextboxSpec": {
+              "lines": ["## Fila da semana — quem ligar agora"]
+            }
+          },
+          "position": {"x": 0, "y": 0, "width": 12, "height": 1}
+        },
+        {
+          "widget": {
+            "name": "subtitulo-fila",
+            "multilineTextboxSpec": {
+              "lines": ["Os 200 clientes de maior score de propensão de compra, com carteira vigente e vendedor ativo. Escolha um vendedor para ver a ordem de ligação dele."]
+            }
+          },
+          "position": {"x": 0, "y": 1, "width": 12, "height": 1}
+        },
+        {
+          "widget": {
+            "name": "filtro-vendedor-fila",
+            "queries": [{
+              "name": "ds_vendedor_fila",
+              "query": {
+                "datasetName": "ds_fila_semanal",
+                "fields": [{"name": "vendedor", "expression": "`vendedor`"}],
+                "disaggregated": false
+              }
+            }],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [{"fieldName": "vendedor", "displayName": "Vendedor", "queryName": "ds_vendedor_fila"}]
+              },
+              "frame": {"showTitle": true, "title": "Vendedor"}
+            }
+          },
+          "position": {"x": 0, "y": 2, "width": 4, "height": 2}
+        },
+        {
+          "widget": {
+            "name": "tabela-fila-semanal",
+            "queries": [{
+              "name": "main_query",
+              "query": {
+                "datasetName": "ds_fila_semanal",
+                "fields": [
+                  {"name": "ordem", "expression": "`ordem`"},
+                  {"name": "razao_social", "expression": "`razao_social`"},
+                  {"name": "cidade", "expression": "`cidade`"},
+                  {"name": "uf", "expression": "`uf`"},
+                  {"name": "score", "expression": "`score`"},
+                  {"name": "faixa", "expression": "`faixa`"},
+                  {"name": "ticket_medio", "expression": "`ticket_medio`"},
+                  {"name": "motivo", "expression": "`motivo`"},
+                  {"name": "sugestao", "expression": "`sugestao`"}
+                ],
+                "disaggregated": true,
+                "orders": [{"direction": "ASC", "expression": "`ordem`"}]
+              }
+            }],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {"fieldName": "ordem", "displayName": "Ordem"},
+                  {"fieldName": "razao_social", "displayName": "Cliente"},
+                  {"fieldName": "cidade", "displayName": "Cidade"},
+                  {"fieldName": "uf", "displayName": "UF"},
+                  {
+                    "fieldName": "score",
+                    "displayName": "Score",
+                    "format": {"type": "number-percent", "decimalPlaces": {"type": "max", "places": 1}}
+                  },
+                  {"fieldName": "faixa", "displayName": "Faixa"},
+                  {
+                    "fieldName": "ticket_medio",
+                    "displayName": "Ticket Médio",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "BRL",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {"type": "max", "places": 2}
+                    }
+                  },
+                  {"fieldName": "motivo", "displayName": "Motivo"},
+                  {"fieldName": "sugestao", "displayName": "Sugestão"}
+                ]
+              },
+              "frame": {"showTitle": true, "title": "Ordem de ligação do vendedor selecionado"}
+            }
+          },
+          "position": {"x": 0, "y": 4, "width": 12, "height": 10}
         }
       ]
     },

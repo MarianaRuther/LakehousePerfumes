@@ -186,3 +186,16 @@ resources:
             notebook_path: ../src/ml/12-modelo.py
             base_parameters:
               catalog: "{{job.parameters.catalog}}"
+
+        # A fila: os 200 clientes de maior score com carteira vigente e
+        # vendedor ativo, um ranking por vendedor, motivo e sugestão de
+        # produto. Mais as quatro funções SQL do agente comercial. Depende
+        # só de ml_modelo — é dali que sai gold.score_propensao.
+        - task_key: ml_fila
+          depends_on:
+            - task_key: ml_modelo
+          sql_task:
+            file:
+              path: ../src/ml/13-fila.sql
+              source: WORKSPACE
+            warehouse_id: ${var.warehouse_id}

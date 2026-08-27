@@ -183,6 +183,36 @@
         ]
       },
       {
+        "identifier": "lakehouse_rotaperfume.gold.fila_semanal",
+        "column_configs": [
+          {
+            "column_name": "cidade",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "faixa",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "razao_social",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "uf",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "vendedor",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
         "identifier": "lakehouse_rotaperfume.gold.margem_por_categoria",
         "column_configs": [
           {
@@ -210,6 +240,16 @@
         "column_configs": [
           {
             "column_name": "marca",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.score_propensao",
+        "column_configs": [
+          {
+            "column_name": "faixa",
             "enable_format_assistance": true,
             "enable_entity_matching": true
           }
@@ -268,6 +308,11 @@
           "A versão como código vive em `resources/comercial.geniespace.json` — este\n",
           "arquivo é a fonte legível para revisar e editar antes de gerar o JSON.\n",
           "\n",
+          "## Regra geral\n",
+          "\n",
+          "Use sempre as tabelas e funções deste espaço. Nunca invente número, nome de\n",
+          "cliente ou quantidade de estoque.\n",
+          "\n",
           "## Contexto\n",
           "\n",
           "Rota do Perfume é uma distribuidora B2B de perfumaria árabe. Importa e\n",
@@ -314,6 +359,15 @@
           "- **Curva ABC** — classificação de SKU por receita acumulada: A são os SKUs\n",
           "  que somam os primeiros 80% da receita do período inteiro, B vai até 95%, C\n",
           "  é a cauda (`gold.mart_produto_performance.curva_abc`).\n",
+          "- **Fila semanal** — os 200 clientes de maior score de propensão de compra,\n",
+          "  com carteira vigente e vendedor ativo, um ranking por vendedor\n",
+          "  (`gold.fila_semanal`). É a lista de quem o time liga esta semana, não os\n",
+          "  3.000 clientes pontuados.\n",
+          "- **Score de propensão** — probabilidade prevista de o cliente comprar nos\n",
+          "  próximos 7 dias, de 0 a 1, para todos os 3.000 clientes\n",
+          "  (`gold.score_propensao.score`, com o quartil em `faixa`). Maior score não\n",
+          "  significa que o cliente está na fila: a fila também exige carteira\n",
+          "  vigente e vendedor ativo.\n",
           "\n",
           "## Como calcular cada métrica\n",
           "\n",
@@ -350,6 +404,8 @@
           "| `gold.clientes_em_risco` | quem parou de comprar e quanta receita mensal se perde com isso |\n",
           "| `gold.efeito_lancamento` | quanto o lançamento de um SKU puxa a receita nos primeiros 120 dias |\n",
           "| `gold.ruptura_por_marca` | quais marcas mais faltam no estoque |\n",
+          "| `gold.fila_semanal` | quem o time liga esta semana, em que ordem, por quê e o que oferecer |\n",
+          "| `gold.score_propensao` | a nota de propensão de compra de qualquer um dos 3.000 clientes |\n",
           "\n",
           "Use `gold.fato_vendas` quando a pergunta cruzar dimensões que as views não\n",
           "têm. Nunca use tabelas do schema `bronze`: são texto puro, sujas de\n",
