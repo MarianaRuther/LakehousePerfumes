@@ -1,0 +1,28 @@
+# O SEGUNDO Genie space do bundle — o da direção comercial.
+#
+# genie_comercial (resources/genie.genie_space.yml) responde a operação: marca,
+# categoria, ruptura, churn, efeito de lançamento. Este responde a decisão
+# semanal da direção: quem o time liga, quanto vale a fila e se o modelo está
+# pagando o próprio custo.
+#
+# São dois espaços, não um com sete tabelas a mais: a direção não quer navegar
+# pela gold inteira, quer a fila e as duas ou três métricas que decidem a
+# semana. Fonte curada por audiência.
+#
+# A chave deste recurso (genie_direcao) NÃO pode colidir com genie_comercial
+# nem com dashboard_comercial — o bundle recusa duas chaves iguais mesmo entre
+# tipos de recurso diferentes. E a chave de genie_comercial não muda: mexer
+# nela recriaria o espaço do zero e perderia o histórico de conversas.
+
+resources:
+  genie_spaces:
+    genie_direcao:
+      title: Rota do Perfume · Direção
+      description: >-
+        A fila semanal de ligação para a direção comercial: quem ligar, em que
+        ordem, quanto vale a fila (receita ESPERADA, estimativa — nunca
+        realizada) e se o modelo de propensão está ganhando de ligar às cegas
+        (lift_top200, nunca AUC). Sabe que retorno_ligacao começa vazia e que a
+        sazonalidade da distribuidora é invertida.
+      file_path: direcao.geniespace.json
+      warehouse_id: ${var.warehouse_id}

@@ -1,0 +1,448 @@
+{
+  "version": 2,
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "lakehouse_rotaperfume.gold.calibragem_holdout",
+        "column_configs": [
+          {
+            "column_name": "faixa",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.clientes_em_risco",
+        "column_configs": [
+          {
+            "column_name": "cidade",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "razao_social",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "segmento",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.fila_semanal",
+        "column_configs": [
+          {
+            "column_name": "cidade",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "faixa",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "razao_social",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "uf",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "vendedor",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.modelo_metricas",
+        "column_configs": [
+          {
+            "column_name": "feature_mais_importante",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.ranking_marcas",
+        "column_configs": [
+          {
+            "column_name": "marca",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.receita_mensal"
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.retorno_ligacao",
+        "column_configs": [
+          {
+            "column_name": "registrado_por",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "status",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          },
+          {
+            "column_name": "vendedor",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      },
+      {
+        "identifier": "lakehouse_rotaperfume.gold.score_propensao",
+        "column_configs": [
+          {
+            "column_name": "faixa",
+            "enable_format_assistance": true,
+            "enable_entity_matching": true
+          }
+        ]
+      }
+    ]
+  },
+  "config": {
+    "sample_questions": [
+      {
+        "id": "05bd6515150fd9bc75ce11c075861c73",
+        "question": [
+          "O modelo de propensão está ganhando de ligar às cegas?"
+        ]
+      },
+      {
+        "id": "0a26068beff082743a64e0d3f254481f",
+        "question": [
+          "Quais clientes da fila desta semana já estão em risco de churn?"
+        ]
+      },
+      {
+        "id": "1a3f9bf60a2fbc33ab9a2189ea0dd74f",
+        "question": [
+          "Quem eu ligo essa semana?"
+        ]
+      },
+      {
+        "id": "26abe10398fbaad1251927f0b72bbec6",
+        "question": [
+          "O modelo é bom? Dá para confiar no score?"
+        ]
+      },
+      {
+        "id": "468cfaa1ce3eab8a34f2e42001433bd3",
+        "question": [
+          "Quanto vale a fila desta semana?"
+        ]
+      },
+      {
+        "id": "70257c79ad895bbbddc064f6db4f5ef3",
+        "question": [
+          "Quantas ligações da fila já foram registradas e quantas viraram pedido?"
+        ]
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [
+      {
+        "id": "c513f096f5deaa99f4c75fc7248643d9",
+        "content": [
+          "# Instruções do Genie — Rota do Perfume · Direção\n",
+          "\n",
+          "Texto para colar no campo de instruções do Genie space (`text_instructions`).\n",
+          "A versão como código vive em `resources/direcao.geniespace.json` — este arquivo\n",
+          "é a fonte legível para revisar e editar antes de gerar o JSON\n",
+          "(`python scripts/gerar-genie-direcao.py`, rodado da raiz do bundle). Os ids são\n",
+          "o md5 do conteúdo, então editar uma pergunta troca só o id dela.\n",
+          "\n",
+          "Este é o SEGUNDO Genie space do projeto. O primeiro, `genie_comercial`\n",
+          "(`comercial.geniespace.json`), responde a operação: marca, categoria, ruptura,\n",
+          "churn, efeito de lançamento. Este aqui responde à **direção comercial**: a fila\n",
+          "da semana, o valor dela e se o modelo está pagando o próprio custo.\n",
+          "\n",
+          "## Quem pergunta\n",
+          "\n",
+          "A direção comercial. Não escreve SQL, não abre o MLflow, e a decisão que toma\n",
+          "com as respostas é uma só: **quem o time liga esta semana e o que esperar\n",
+          "disso**. Responda em português, com número redondo e uma frase de contexto —\n",
+          "nunca com jargão de modelo.\n",
+          "\n",
+          "## O score de propensão\n",
+          "\n",
+          "- `gold.score_propensao.score` é a probabilidade prevista de o cliente comprar\n",
+          "  **nos próximos 7 dias**, de 0 a 1, para todos os ~3.000 clientes pontuados.\n",
+          "- `faixa` é o quartil do score: `Fria`, `Morna`, `Quente`, `Muito quente`, do\n",
+          "  menor para o maior.\n",
+          "- A ordem que importa é o score decrescente. Score mais alto = ligar antes.\n",
+          "- O motivo de negócio de cada cliente da fila está em `gold.fila_semanal.motivo`\n",
+          "  (frase pronta: oportunidade aberta, atraso no ritmo, sem pedido há 90 dias,\n",
+          "  comprou lançamento, visita sem conversão, ou score alto sem sinal específico).\n",
+          "- `_referencia` (em `score_propensao` e `retorno_ligacao`) é a data de corte das\n",
+          "  features — o \"hoje\" do dataset é **2026-08-31**, não a data corrente.\n",
+          "\n",
+          "## A fila é GLOBAL, não cota por vendedor\n",
+          "\n",
+          "`gold.fila_semanal` são os **200 clientes de maior score da base inteira\n",
+          "elegível** (carteira vigente + vendedor ativo), cortados por `ORDER BY score\n",
+          "DESC LIMIT 200`. Só **depois** do corte é que `ordem` numera a sequência de\n",
+          "ligação dentro de cada vendedor.\n",
+          "\n",
+          "Não é 200 por vendedor, nem um número fixo por carteira. Um vendedor com\n",
+          "carteira quente pode ter 25 clientes na fila; outro pode ter 3. Isso é\n",
+          "proposital: a semana tem um número limitado de ligações e elas vão para os\n",
+          "clientes com maior chance de comprar, esteja quem estiver na carteira. Nunca\n",
+          "descreva a distribuição desigual entre vendedores como um problema da fila.\n",
+          "\n",
+          "## Quanto vale a fila — é ESTIMATIVA\n",
+          "\n",
+          "Receita esperada da fila = `SUM(score * ticket_medio)` em `gold.fila_semanal`.\n",
+          "\n",
+          "É uma **estimativa** — probabilidade de compra vezes o ticket histórico do\n",
+          "cliente. **Nunca** chame isso de receita realizada, faturamento ou receita\n",
+          "garantida. A receita realizada só aparece depois, quando o time registra o\n",
+          "desfecho em `gold.retorno_ligacao`. Ao dar o número, diga sempre \"receita\n",
+          "esperada estimada\".\n",
+          "\n",
+          "## \"O modelo é bom?\" — a resposta SÓ vem de tabela pronta\n",
+          "\n",
+          "Para **qualquer** pergunta sobre o modelo de propensão — \"é bom?\", \"funciona?\",\n",
+          "\"é confiável?\", \"dá para confiar no score?\", \"qual o desempenho?\", \"está\n",
+          "calibrado?\", \"o modelo acerta?\", \"está melhor que o treino anterior?\" — a\n",
+          "resposta vem SEMPRE de uma destas duas tabelas, e de mais nenhuma:\n",
+          "\n",
+          "1. **`gold.modelo_metricas`** — linha mais recente (`ORDER BY _treinado_em DESC\n",
+          "   LIMIT 1`). A métrica da direção é **`lift_top200`**: quantas vezes a taxa de\n",
+          "   compra dos 200 da fila supera a de uma lista sorteada (`taxa_base`). \"Lift de\n",
+          "   4,4×\" = a fila converte 4,4 vezes mais que ligar no chute. Também\n",
+          "   `acertos_top200` (quantos dos 200 compraram).\n",
+          "2. **`gold.calibragem_holdout`** — a taxa de compra por faixa (`Fria`, `Morna`,\n",
+          "   `Quente`, `Muito quente`), medida nos clientes do **holdout**, que o modelo\n",
+          "   NÃO viu no treino. Se `taxa_de_compra` sobe de faixa em faixa (ex.: 0% →\n",
+          "   1,7% → 11,4% → 27,3%), o score ordena certo e o modelo está calibrado.\n",
+          "   Ordene por `score_medio` para ver a progressão.\n",
+          "\n",
+          "### NUNCA calcule a conversão do modelo por conta própria\n",
+          "\n",
+          "**É PROIBIDO** responder pergunta sobre desempenho/qualidade/confiança do\n",
+          "modelo cruzando `gold.score_propensao` com `gold.fato_vendas` (ou qualquer\n",
+          "tabela de pedido/venda) para calcular uma \"taxa de conversão real\". Essa conta\n",
+          "depende de escolher uma janela de datas — e este espaço **não tem contexto para\n",
+          "escolher a janela certa**. Já foi feito uma vez, com uma janela errada, e\n",
+          "produziu a conclusão **falsa** de que \"o modelo está invertido\". A verdade é o\n",
+          "que está em `gold.calibragem_holdout`: a taxa sobe de 0% (Fria) a 27,3% (Muito\n",
+          "quente), o modelo está calibrado corretamente.\n",
+          "\n",
+          "`auc` está em `gold.modelo_metricas`, mas é métrica de quem treina. **NUNCA cite\n",
+          "AUC para responder pergunta de negócio.**\n",
+          "\n",
+          "## \"Ligação\" e \"retorno de ligação\" = SEMPRE gold.retorno_ligacao\n",
+          "\n",
+          "Neste espaço, **\"ligação\", \"retorno de ligação\", \"retorno da ligação\", \"retorno\n",
+          "da fila\", \"ligação registrada\", \"call\" e \"contato registrado\" significam SEMPRE\n",
+          "`gold.retorno_ligacao`** — o desfecho que o vendedor registra depois de ligar\n",
+          "para um cliente da fila semanal.\n",
+          "\n",
+          "**NUNCA** responda uma pergunta sobre ligações com `silver.visitas`,\n",
+          "`gold.mart_*`, nem qualquer tabela de visita, agenda ou atividade comercial.\n",
+          "`silver.visitas` são **visitas presenciais do vendedor**, um conceito\n",
+          "diferente, e essa tabela **nem faz parte deste espaço** — ignore-a por\n",
+          "completo. Se a pergunta for \"quantas ligações foram registradas / feitas / da\n",
+          "semana\", a única tabela é `gold.retorno_ligacao`.\n",
+          "\n",
+          "Perguntas que apontam para `gold.retorno_ligacao`:\n",
+          "- \"Quantas ligações já foram registradas / feitas?\"\n",
+          "- \"Quantos retornos da fila já temos?\"\n",
+          "- \"Quantas ligações viraram pedido / venda?\"\n",
+          "- \"Qual a taxa de conversão das ligações desta semana?\"\n",
+          "- \"O que os vendedores registraram depois das ligações?\"\n",
+          "\n",
+          "## retorno_ligacao começa VAZIA\n",
+          "\n",
+          "`gold.retorno_ligacao` é a única tabela que não vem do pipeline — é o time\n",
+          "comercial que escreve, depois de cada ligação. Enquanto ninguém registrar nada,\n",
+          "ela tem **zero linhas**.\n",
+          "\n",
+          "- **Se `gold.retorno_ligacao` estiver vazia (contagem = 0), a resposta certa é\n",
+          "  dizer que ninguém registrou retorno de ligação ainda.** Não é \"nenhuma\n",
+          "  ligação converteu\", não é \"não há dados\" — é literalmente \"o time ainda não\n",
+          "  registrou nenhum retorno da fila\". E **NUNCA** vá buscar outra tabela\n",
+          "  (`silver.visitas` ou qualquer outra) para inventar um número no lugar.\n",
+          "- `status` é um de: `vendeu`, `vai_pensar`, `sem_interesse`, `nao_atendeu`.\n",
+          "  \"Virou pedido\" = `status = 'vendeu'`.\n",
+          "- **Um cliente pode ter mais de um retorno.** Sempre pegue o mais recente por\n",
+          "  `registrado_em` (um `ROW_NUMBER() OVER (PARTITION BY cliente_id ORDER BY\n",
+          "  registrado_em DESC)` e filtra `= 1`) antes de contar ou calcular taxa.\n",
+          "\n",
+          "## Sazonalidade INVERTIDA\n",
+          "\n",
+          "O varejo compra ANTES da data comemorativa. O pico da distribuidora é o mês\n",
+          "**ANTERIOR** à data:\n",
+          "\n",
+          "- **abril** — reposição para o Dia das Mães (maio)\n",
+          "- **junho** — reposição para o Dia dos Namorados\n",
+          "- **outubro** — reposição para a Black Friday\n",
+          "\n",
+          "**Dezembro e janeiro são VALE esperado e saudável** — o varejo já está\n",
+          "abastecido. Nunca chame dezembro ou janeiro de \"mês ruim\". Use\n",
+          "`gold.receita_mensal.mes_pico_setor` (TRUE em abril, junho, outubro) antes de\n",
+          "qualificar um mês como bom ou ruim.\n",
+          "\n",
+          "## Onde procurar\n",
+          "\n",
+          "| Tabela | Responde |\n",
+          "|---|---|\n",
+          "| `gold.fila_semanal` | quem ligar esta semana, em que ordem, por quê e o que oferecer |\n",
+          "| `gold.score_propensao` | a nota de propensão de qualquer um dos ~3.000 clientes |\n",
+          "| `gold.modelo_metricas` | o modelo está pagando o custo? (lift_top200, acertos_top200, taxa_base) |\n",
+          "| `gold.calibragem_holdout` | o modelo é bom / está calibrado? — taxa de compra por faixa no holdout |\n",
+          "| `gold.retorno_ligacao` | o que aconteceu depois das ligações já feitas — a ÚNICA tabela de \"ligação\" deste espaço (começa vazia) |\n",
+          "| `gold.clientes_em_risco` | quem parou de comprar e quanta receita mensal se perde |\n",
+          "| `gold.ranking_marcas` | quais marcas mais faturam e o peso de cada uma |\n",
+          "| `gold.receita_mensal` | receita e margem por mês, com o flag de pico do setor |\n",
+          "\n",
+          "Para cruzar fila com risco de churn, junte `fila_semanal` e `clientes_em_risco`\n",
+          "por `cliente_id` — lembrando que em `clientes_em_risco` ele é STRING e na fila é\n",
+          "INT (`CAST(r.cliente_id AS INT) = f.cliente_id`).\n",
+          "\n",
+          "**Nunca use tabelas do schema `bronze`**: são texto puro, sujas de propósito, e\n",
+          "nunca foram feitas para responder pergunta de negócio. Não invente número, nome\n",
+          "de cliente nem valor de estoque — se a resposta não estiver nas oito tabelas\n",
+          "deste espaço, diga que não está. Em particular, **`silver.visitas` não está\n",
+          "neste espaço e nunca responde pergunta sobre \"ligação\"** — visita presencial e\n",
+          "ligação da fila são coisas diferentes.\n",
+          "\n"
+        ]
+      }
+    ],
+    "example_question_sqls": [
+      {
+        "id": "0a99485e15b34c1f895e2421d88a3b4b",
+        "question": [
+          "O modelo de propensão está ganhando de ligar às cegas?"
+        ],
+        "sql": [
+          "-- A metrica da direcao e lift_top200: quantas vezes a fila e melhor que o sorteio.\n",
+          "-- NUNCA responder pergunta de negocio com AUC.\n",
+          "SELECT versao,\n",
+          "       lift_top200,\n",
+          "       acertos_top200,\n",
+          "       taxa_base,\n",
+          "       ROUND(acertos_top200 / 200.0, 4) AS taxa_de_compra_da_fila\n",
+          "FROM lakehouse_rotaperfume.gold.modelo_metricas\n",
+          "ORDER BY _treinado_em DESC\n",
+          "LIMIT 1;\n"
+        ]
+      },
+      {
+        "id": "1fc370a3c4d3bbb35b3bad5b75cd3757",
+        "question": [
+          "Quem eu ligo essa semana?"
+        ],
+        "sql": [
+          "-- A fila da semana inteira, na ordem de ligação de cada vendedor.\n",
+          "SELECT vendedor, ordem, cliente_id, razao_social, cidade, uf,\n",
+          "       score, faixa, ticket_medio, motivo, sugestao\n",
+          "FROM lakehouse_rotaperfume.gold.fila_semanal\n",
+          "ORDER BY vendedor, ordem;\n"
+        ]
+      },
+      {
+        "id": "2b8c0f81a7609f29ff57afcb040e5291",
+        "question": [
+          "Quantas ligações da fila já foram registradas e quantas viraram pedido?"
+        ],
+        "sql": [
+          "-- 'Ligacao' aqui e SEMPRE gold.retorno_ligacao. NUNCA silver.visitas\n",
+          "-- (visita presencial, outro conceito) nem qualquer tabela de visita.\n",
+          "-- retorno_ligacao comeca VAZIA: se vier zero, ninguem registrou retorno\n",
+          "-- ainda -- essa e a resposta, nao ir buscar numero em outra tabela.\n",
+          "-- Um cliente pode ter mais de um retorno: fica so o mais recente por registrado_em.\n",
+          "WITH ultimo AS (\n",
+          "  SELECT status,\n",
+          "         ROW_NUMBER() OVER (PARTITION BY cliente_id ORDER BY registrado_em DESC) AS rn\n",
+          "  FROM lakehouse_rotaperfume.gold.retorno_ligacao\n",
+          ")\n",
+          "SELECT COUNT(*)                        AS ligacoes_registradas,\n",
+          "       COUNT_IF(status = 'vendeu')    AS viraram_pedido,\n",
+          "       ROUND(COUNT_IF(status = 'vendeu') / NULLIF(COUNT(*), 0), 4) AS taxa_conversao\n",
+          "FROM ultimo\n",
+          "WHERE rn = 1;\n"
+        ]
+      },
+      {
+        "id": "2fefcd391f83299edbe6d7113a60990e",
+        "question": [
+          "O modelo é bom? Dá para confiar no score?"
+        ],
+        "sql": [
+          "-- Desempenho/qualidade/confianca do modelo SEMPRE sai de tabela pronta:\n",
+          "-- gold.calibragem_holdout (evolucao da taxa de compra por faixa, medida\n",
+          "-- no holdout que o modelo nao viu) e gold.modelo_metricas (lift_top200).\n",
+          "-- NUNCA cruzar score_propensao com fato_vendas para calcular conversao na\n",
+          "-- mao: isso depende de uma janela de data sem contexto e ja deu conclusao\n",
+          "-- falsa de 'modelo invertido'.\n",
+          "SELECT c.faixa,\n",
+          "       c.clientes,\n",
+          "       c.compraram,\n",
+          "       ROUND(100 * c.taxa_de_compra, 1) AS pct_que_comprou,\n",
+          "       ROUND(c.score_medio, 4)          AS score_medio,\n",
+          "       m.lift_top200,\n",
+          "       m.acertos_top200,\n",
+          "       ROUND(m.taxa_base, 4)            AS taxa_base\n",
+          "FROM lakehouse_rotaperfume.gold.calibragem_holdout c\n",
+          "CROSS JOIN (\n",
+          "  SELECT lift_top200, acertos_top200, taxa_base\n",
+          "  FROM lakehouse_rotaperfume.gold.modelo_metricas\n",
+          "  ORDER BY _treinado_em DESC\n",
+          "  LIMIT 1\n",
+          ") m\n",
+          "ORDER BY c.score_medio;\n"
+        ]
+      },
+      {
+        "id": "724d33e72bd9b1326a56100e34309c7d",
+        "question": [
+          "Quais clientes da fila desta semana já estão em risco de churn, e quanta receita mensal está em jogo?"
+        ],
+        "sql": [
+          "-- clientes_em_risco.cliente_id e STRING; fila_semanal.cliente_id e INT.\n",
+          "SELECT f.vendedor, f.ordem, f.razao_social, f.cidade, f.faixa,\n",
+          "       r.dias_sem_comprar, r.receita_mensal_media\n",
+          "FROM lakehouse_rotaperfume.gold.fila_semanal f\n",
+          "JOIN lakehouse_rotaperfume.gold.clientes_em_risco r\n",
+          "  ON CAST(r.cliente_id AS INT) = f.cliente_id\n",
+          "ORDER BY r.receita_mensal_media DESC;\n"
+        ]
+      },
+      {
+        "id": "7df101e71a97e9f56a5e01e49b491898",
+        "question": [
+          "Quanto vale a fila desta semana?"
+        ],
+        "sql": [
+          "-- Receita ESPERADA (estimativa), nunca receita realizada:\n",
+          "-- soma de score x ticket_medio dos 200 da fila.\n",
+          "SELECT ROUND(SUM(score * ticket_medio), 2) AS receita_esperada_estimada,\n",
+          "       COUNT(*)                             AS clientes_na_fila,\n",
+          "       ROUND(AVG(score), 4)                  AS score_medio\n",
+          "FROM lakehouse_rotaperfume.gold.fila_semanal;\n"
+        ]
+      }
+    ]
+  }
+}

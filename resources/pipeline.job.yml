@@ -16,6 +16,11 @@
 #   raw_conferencia → bronze_ingestao → silver ×4 (paralelo) → gold_dimensoes
 #     → gold_fato_vendas → gold_marts → testes_de_qualidade
 #                                     → metricas_de_negocio → auditoria_de_metadado
+#                                     → gold_retorno_ligacao
+#
+# A noite 3 acrescentou ml_features → ml_modelo → ml_fila, e a noite 4
+# acrescenta gold_retorno_ligacao — a tabela do caminho de volta, escrita pelo
+# time, não pelo pipeline. O job vai de 15 para 16 tarefas.
 #
 # Tudo serverless (Free Edition não tem cluster clássico). Agendado às 6h da
 # manhã — o dashboard comercial precisa estar com o dado do dia pronto antes
@@ -125,6 +130,21 @@ resources:
           sql_task:
             file:
               path: ../src/gold/07-marts.sql
+              source: WORKSPACE
+            warehouse_id: ${var.warehouse_id}
+
+        # O caminho de volta: a tabela onde o time registra o que aconteceu
+        # depois de cada ligação da fila. É a única tarefa do job que NÃO
+        # reconstrói a tabela — CREATE TABLE IF NOT EXISTS, para um redeploy ou
+        # uma nova execução não apagarem o retorno já respondido. Depende de
+        # gold_marts só para entrar no DAG no lugar certo; o conteúdo dela não
+        # vem do pipeline.
+        - task_key: gold_retorno_ligacao
+          depends_on:
+            - task_key: gold_marts
+          sql_task:
+            file:
+              path: ../src/gold/11-retorno-ligacao.sql
               source: WORKSPACE
             warehouse_id: ${var.warehouse_id}
 
