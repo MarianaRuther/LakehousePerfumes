@@ -20,11 +20,17 @@ export const reais = (v: number | string): string =>
 /** Score de 0 a 1 vira porcentagem inteira: ninguém decide ligação lendo 0,974. */
 export const pct = (v: number | string, casas = 0): string => `${(num(v) * 100).toFixed(casas)}%`;
 
-/** Rótulo em português dos quatro desfechos de uma ligação. */
-export const rotuloStatus = (valor: string): string =>
-  ({
-    vendeu: 'Vendeu',
-    vai_pensar: 'Vai pensar',
-    sem_interesse: 'Sem interesse',
-    nao_atendeu: 'Não atendeu',
-  })[valor] ?? valor;
+/**
+ * Os quatro desfechos possíveis de uma ligação, na ordem em que o vendedor
+ * pensa neles. É a mesma lista do `enum` no servidor — botão é interface, o
+ * enum é o contrato, e os dois precisam bater.
+ */
+export const STATUS = [
+  { valor: 'vendeu', rotulo: 'Vendeu', bom: true },
+  { valor: 'vai_pensar', rotulo: 'Vai pensar', bom: false },
+  { valor: 'sem_interesse', rotulo: 'Sem interesse', bom: false },
+  { valor: 'nao_atendeu', rotulo: 'Não atendeu', bom: false },
+] as const;
+
+/** Rótulo em português de um dos quatro desfechos de uma ligação. */
+export const rotuloStatus = (valor: string): string => STATUS.find((s) => s.valor === valor)?.rotulo ?? valor;
